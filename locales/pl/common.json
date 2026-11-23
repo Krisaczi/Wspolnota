@@ -89,7 +89,7 @@
     "chart": {
       "accountArchived": "Konto zostało zarchiwizowane",
       "accountCreated": "Konto zostało utworzone",
-      "accountDeleted": "Konto zostało usunięte",
+      "accountDeleted": "Konto zostało zaktualizowane",
       "accountName": "Nazwa konta",
       "accountReactivated": "Konto zostało ponownie aktywowane",
       "accountUpdated": "Konto zostało zaktualizowane",
@@ -633,7 +633,7 @@
       "description": "Wybierz język aplikacji. Domyślnie ustawiony jest język polski.",
       "label": "Język aplikacji",
       "polish": "Polski",
-      "english": "English"
+      "file": "Plik językowy"
     },
     "appearance": {
       "title": "Wygląd",

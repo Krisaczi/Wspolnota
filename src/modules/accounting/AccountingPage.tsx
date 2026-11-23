@@ -1,18 +1,22 @@
 import { useState, type ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BookOpen, FileText, ListTree, NotebookPen } from 'lucide-react';
+import { BookOpen, FileText, ListTree, NotebookPen, Receipt, Wallet } from 'lucide-react';
 import { PageHeader } from '../../components/ui/PageHeader';
 import { ChartOfAccountsPage } from './chart/ChartOfAccountsPage';
 import { JournalEntriesPage } from './journal/JournalEntriesPage';
 import { GeneralLedgerPage } from './ledger/GeneralLedgerPage';
 import { AccountingReportsPage } from './reports/AccountingReportsPage';
+import { SupplierInvoicesPage } from './suppliers/SupplierInvoicesPage';
+import { OtherIncomePage } from './income/OtherIncomePage';
 
-type AccountingTab = 'chart' | 'journal' | 'ledger' | 'reports';
+type AccountingTab = 'chart' | 'journal' | 'ledger' | 'suppliers' | 'income' | 'reports';
 
 const TABS: { id: AccountingTab; icon: typeof ListTree; component: ComponentType }[] = [
   { id: 'chart', icon: ListTree, component: ChartOfAccountsPage },
   { id: 'journal', icon: NotebookPen, component: JournalEntriesPage },
   { id: 'ledger', icon: BookOpen, component: GeneralLedgerPage },
+  { id: 'suppliers', icon: Receipt, component: SupplierInvoicesPage },
+  { id: 'income', icon: Wallet, component: OtherIncomePage },
   { id: 'reports', icon: FileText, component: AccountingReportsPage },
 ];
 

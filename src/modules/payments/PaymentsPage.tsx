@@ -175,6 +175,7 @@ export function PaymentsPage() {
           payment={editor.mode === 'edit' ? editor.payment : null}
           apartments={apartments}
           defaultApartmentId={selectedApartment?.id ?? null}
+          initialAllocations={editor.mode === 'edit' ? (editor.payment.allocations ?? null) : null}
           currency={currency}
           onClose={() => setEditor(null)}
           onSubmit={(input: PaymentInput) => {

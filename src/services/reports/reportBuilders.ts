@@ -1,7 +1,8 @@
 import i18n from '../../i18n';
 import { listApartments, type ApartmentRecord } from '../../db/repositories/apartmentsRepo';
 import { listChargesInRange, sumChargesByApartment } from '../../db/repositories/monthlyChargesRepo';
-import { listPayments, sumPaymentsByApartment } from '../../db/repositories/paymentsRepo';
+import { listPayments } from '../../db/repositories/paymentsRepo';
+import { receivablePaymentsByApartment, allocationSumsByApartment } from '../../db/repositories/paymentAllocationsRepo';
 import { listOwners } from '../../db/repositories/ownersRepo';
 import { listInterestRates } from '../../db/repositories/interestRatesRepo';
 import { calculateBalance, summarizeBalances } from '../../domain/balances';
@@ -78,15 +79,17 @@ function buildStatement(
     apartmentIds.has(payment.apartmentId),
   );
   const chargesAtEnd = sumChargesByApartment(range.to);
-  const paymentsAtEnd = sumPaymentsByApartment(range.to);
+  const paymentsAtEnd = receivablePaymentsByApartment(range.to);
+  const prepaymentsAtEnd = allocationSumsByApartment(['overpayment'], range.to);
   const asOfDate = interestAsOfDate(range.to);
 
   const perApartment = apartments.map((apartment) => {
-    const balanceAtEnd = calculateBalance(
-      chargesAtEnd.get(apartment.id) ?? 0,
-      paymentsAtEnd.get(apartment.id) ?? 0,
-      apartment.startingBalance,
-    );
+    const balanceAtEnd =
+      calculateBalance(
+        chargesAtEnd.get(apartment.id) ?? 0,
+        paymentsAtEnd.get(apartment.id) ?? 0,
+        apartment.startingBalance,
+      ) - (prepaymentsAtEnd.get(apartment.id) ?? 0);
     const interest = calculateTotalInterest(
       Math.max(0, balanceAtEnd),
       listInterestRates(apartment.id),
@@ -170,11 +173,17 @@ export function buildApartmentStatement(apartmentId: number, range: PeriodRange)
 export function buildDebtReport(asOf: string): ReportDocument {
   const context = createContext();
   const chargesByApartment = sumChargesByApartment(asOf);
-  const paymentsByApartment = sumPaymentsByApartment(asOf);
+  const paymentsByApartment = receivablePaymentsByApartment(asOf);
+  const prepayments = allocationSumsByApartment(['overpayment'], asOf);
   const apartments = listApartments();
   const balances = apartments.map((apartment) => ({
     apartment,
-    balance: calculateBalance(chargesByApartment.get(apartment.id) ?? 0, paymentsByApartment.get(apartment.id) ?? 0, apartment.startingBalance),
+    balance:
+      calculateBalance(
+        chargesByApartment.get(apartment.id) ?? 0,
+        paymentsByApartment.get(apartment.id) ?? 0,
+        apartment.startingBalance,
+      ) - (prepayments.get(apartment.id) ?? 0),
   }));
   const debtors = balances.filter((item) => item.balance > 0.005).sort((a, b) => b.balance - a.balance);
   const summary = summarizeBalances(balances.map((item) => item.balance));
@@ -241,9 +250,14 @@ export function buildFinancialSummary(range: PeriodRange): ReportDocument {
   const apartments = listApartments();
 
   const chargesByApartment = sumChargesByApartment(range.to);
-  const paymentsByApartment = sumPaymentsByApartment(range.to);
+  const paymentsByApartment = receivablePaymentsByApartment(range.to);
+  const prepayments = allocationSumsByApartment(['overpayment'], range.to);
   const balances = apartments.map((apartment) =>
-    calculateBalance(chargesByApartment.get(apartment.id) ?? 0, paymentsByApartment.get(apartment.id) ?? 0, apartment.startingBalance),
+    calculateBalance(
+      chargesByApartment.get(apartment.id) ?? 0,
+      paymentsByApartment.get(apartment.id) ?? 0,
+      apartment.startingBalance,
+    ) - (prepayments.get(apartment.id) ?? 0),
   );
   const balanceSummary = summarizeBalances(balances);
 

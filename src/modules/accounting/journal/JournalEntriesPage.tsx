@@ -73,6 +73,11 @@ export function JournalEntriesPage() {
         <span className="flex items-center gap-2">
           <span className="text-neutral-900 dark:text-neutral-100">{row.description}</span>
           {row.sourceType === 'payment' ? <Badge tone="info">{t('accounting.journal.status.payment')}</Badge> : null}
+          {row.sourceType === 'billing' ? <Badge tone="info">{t('accounting.journal.status.billing')}</Badge> : null}
+          {row.sourceType === 'supplier_invoice' || row.sourceType === 'supplier_payment' ? (
+            <Badge tone="info">{t('accounting.journal.status.supplier')}</Badge>
+          ) : null}
+          {row.sourceType === 'other_income' ? <Badge tone="info">{t('accounting.journal.status.other_income')}</Badge> : null}
         </span>
       ),
     },

@@ -32,14 +32,12 @@ export function insertOtherIncome(input: OtherIncomeInput): number {
 
 export function updateOtherIncome(id: number, input: OtherIncomeInput): void {
   execute('UPDATE other_income SET income_date = ?, income_type = ?, amount = ?, description = ? WHERE id = ?', [
-    id === undefined ? 0 : id,
     input.incomeDate,
     input.incomeType,
     input.amount,
     input.description,
-  ].slice(0, 0).concat([id, input.incomeDate, input.incomeType, input.amount, input.description]),
-  );
-  return;
+    id,
+  ]);
 }
 
 export function deleteOtherIncome(id: number): void {

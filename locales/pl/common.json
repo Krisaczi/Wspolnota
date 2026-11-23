@@ -82,7 +82,9 @@
       "chart": "Plan kont",
       "journal": "Dziennik",
       "ledger": "Księga główna",
-      "reports": "Raporty"
+      "reports": "Raporty",
+      "suppliers": "Faktury od dostawców",
+      "income": "Pozostałe przychody"
     },
     "chart": {
       "accountArchived": "Konto zostało zarchiwizowane",
@@ -168,9 +170,14 @@
       "saveFailed": "Nie udało się zaksięgować operacji",
       "status": {
         "payment": "Wpłata",
+        "billing": "Naliczenia",
+        "starting_balance": "Saldo początkowe",
+        "meter": "Liczniki",
         "posted": "Zaksięgowana",
         "reversal": "Storno",
-        "reversed": "Stornowana"
+        "reversed": "Stornowana",
+        "supplier": "Dostawcy",
+        "other_income": "Przychód"
       },
       "to": "Do",
       "viewLines": "Zobacz zapisy"
@@ -220,6 +227,60 @@
           "label": "Przepływy pieniężne",
           "description": "Wpływy i wypływy na kontach kasy i banku."
         }
+      }
+    },
+    "suppliers": {
+      "newInvoice": "Nowa faktura",
+      "empty": "Brak faktur od dostawców.",
+      "openPayables": "Zobowiązania bieżące:",
+      "markPaid": "Oznacz jako opłacona",
+      "markUnpaid": "Oznacz jako nieopłacona",
+      "saved": "Faktura zapisana",
+      "updated": "Faktura zaktualizowana",
+      "deleted": "Faktura usunięta",
+      "deleteTitle": "Usunąć fakturę?",
+      "deleteMessage": "Faktura od dostawcy {{supplier}} zostanie usunięta, a jej zapisy księgowe skustomowane. Tej operacji nie można cofnąć.",
+      "columns": {
+        "invoiceDate": "Data faktury",
+        "supplier": "Dostawca",
+        "expenseAccount": "Konto kosztowe",
+        "status": "Status"
+      },
+      "status": {
+        "paid": "Opłacona",
+        "unpaid": "Nieopłacona"
+      },
+      "form": {
+        "title": "Faktura od dostawcy",
+        "description": "Faktura zapisuje się na wybranym koncie kosztowym i zobowiązaniach wobec dostawców (2020).",
+        "invoiceDate": "Data faktury",
+        "supplier": "Dostawca",
+        "supplierPlaceholder": "np. Dostawca mediów",
+        "expenseAccount": "Konto kosztowe",
+        "chooseAccount": "Wybierz konto kosztowe",
+        "paid": "Opłacona",
+        "paidDate": "Data zapłaty"
+      }
+    },
+    "otherIncome": {
+      "newEntry": "Nowy przychód",
+      "empty": "Brak wpisów przychodów.",
+      "saved": "Przychód zapisany",
+      "updated": "Przychód zaktualizowany",
+      "deleted": "Przychód usunięty",
+      "deleteTitle": "Usunąć przychód?",
+      "deleteMessage": "Wpis przychodu z dnia {{date}} zostanie usunięty, a jego zapisy księgowe skustomowane. Tej operacji nie można cofnąć.",
+      "columns": {
+        "type": "Rodzaj"
+      },
+      "types": {
+        "interest": "Odsetki bankowe (7020)",
+        "other": "Pozostałe przychody (7090)"
+      },
+      "form": {
+        "title": "Pozostały przychód",
+        "description": "Przychód zapisuje się na koncie bankowym (1010).",
+        "type": "Rodzaj przychodu"
       }
     }
   },
@@ -527,7 +588,7 @@
       "title": "Rodzaje liczników",
       "description": "Zdefiniuj liczniki, dla których rejestrujesz odczyty, np. wodę lub prąd.",
       "newType": "Nowy rodzaj licznika",
-      "renameType": "Zmień nazwę rodzaju licznika",
+      "renameType": "Zmień nazwę rodzaj licznika",
       "namePlaceholder": "np. Woda zimna",
       "added": "Rodzaj licznika został dodany",
       "updated": "Rodzaj licznika został zaktualizowany",
@@ -624,7 +685,7 @@
     "maxLength": "Pole „{{label}}” może mieć najwyżej {{max}} znaków.",
     "mustBeNumber": "Pole „{{label}}” musi być liczbą.",
     "negative": "Pole „{{label}}” nie może być ujemne.",
-    "mustBePositive": "Pole „{{label}}” musi być większe od zera.",
+    "mustBePositive": "Kwota musi być większa od zera.",
     "wholeNumber": "Pole „{{label}}” musi być liczbą całkowitą nie mniejszą niż 0.",
     "fallbackSave": "Nie udało się zapisać rekordu.",
     "accountCodeRequired": "Kod konta jest wymagany.",
@@ -654,7 +715,10 @@
     "readingBelowPrevious": "Odczyt nie może być niższy niż poprzedni ({{value}} z {{date}}).",
     "readingAboveNext": "Odczyt nie może być wyższy niż następny ({{value}} z {{date}}).",
     "advanceRequiresPositiveMonthly": "Podaj miesięczną kwotę zaliczki większą od zera.",
-    "currency": "Wpisz 3-literowy kod waluty, np. PLN lub EUR."
+    "currency": "Wpisz 3-literowy kod waluty, np. PLN lub EUR.",
+    "selectAccount": "Wybierz konto.",
+    "accountNotAllowed": "Tego konta nie można użyć do podziału wpłaty.",
+    "selectCategory": "Wybierz kategorię należności."
   },
   "reportDocument": {
     "titles": {
@@ -732,13 +796,26 @@
     "reversalPrefix": "Storno: {{description}}",
     "paymentNotPosted": "Wpłaty nie udało się zaksięgować na kontach.",
     "ownerPaymentDescription": "Wpłata właściciela, lokal {{number}}",
+    "monthlyChargeDescription": "Naliczenia miesięczne, lokal {{number}}",
+    "chargeNotPosted": "Nie udało się zaksięgować naliczeń dla lokalu {{number}}.",
+    "startingBalanceDescription": "Saldo początkowe, lokal {{number}}",
+    "startingBalanceNotPosted": "Nie udało się zaksięgować salda początkowego.",
+    "meterDescription": "Rozliczenie liczników, lokal {{number}}",
+    "meterNotPosted": "Nie udało się zaksięgować rozliczenia liczników.",
     "noActiveChargeTypes": "Brak aktywnych rodzajów opłat. Aktywuj lub utwórz rodzaj opłaty przed wygenerowaniem naliczeń.",
     "noActiveApartments": "Brak aktywnych lokali do naliczenia.",
     "apartmentMissing": "Ten lokal już nie istnieje.",
     "newOwnerMissing": "Wybrany nowy właściciel już nie istnieje.",
     "alreadyOwner": "Ten lokal już należy do tego właściciela.",
     "ownerNotFound": "Nie znaleziono właściciela",
-    "apartmentNotFound": "Nie znaleziono lokalu"
+    "apartmentNotFound": "Nie znaleziono lokalu",
+    "supplierInvoiceDescription": "Faktura od dostawcy, {{supplier}}",
+    "supplierPaymentDescription": "Zapłata faktury, {{supplier}}",
+    "supplierInvoiceNotPosted": "Nie udało się zaksięgować faktury.",
+    "supplierPaymentNotPosted": "Nie udało się zaksięgować zapłaty.",
+    "interestDescription": "Odsetki bankowe",
+    "otherIncomeDescription": "Pozostały przychód",
+    "otherIncomeNotPosted": "Nie udało się zaksięgować przychodu."
   },
   "reportsPage": {
     "title": "Raporty",
@@ -901,6 +978,32 @@
       "amount": "Kwota ({{currency}})",
       "descriptionOptional": "Opis (opcjonalnie)",
       "descriptionPlaceholder": "np. przelew za styczeń"
+    },
+    "allocation": {
+      "title": "Podział wpłaty",
+      "hint": "Brak linii podziału — wpłata zostanie automatycznie podzielona między spłatę zadłużenia i nadpłatę. Użyj „Dodaj linię podziału”, aby przypisać kwoty do kont.",
+      "addLine": "Dodaj linię podziału",
+      "removeLine": "Usuń linię podziału",
+      "accountFor": "Konto podziału {{line}}",
+      "amountFor": "Kwota podziału {{line}}",
+      "noteFor": "Uwaga podziału {{line}}",
+      "notePlaceholder": "Opcjonalna uwaga",
+      "allocated": "Rozdzielone:",
+      "remaining": "Pozostało:",
+      "balanced": "Zrównoważone",
+      "notBalanced": "Niezrównoważone",
+      "invalidRows": "Popraw zaznaczone linie podziału — każda wymaga konta i kwoty dodatniej.",
+      "empty": "Dodaj co najmniej jedną linię podziału.",
+      "doesNotBalance": "Rozdzielono {{allocated}} z {{payment}} — suma podziału musi równać się kwocie wpłaty.",
+      "chooseCategory": "Wybierz kategorię należności",
+      "categoryFor": "Kategoria podziału {{line}}",
+      "categories": {
+        "operating": "Opłaty eksploatacyjne",
+        "meter": "Rozliczenie liczników",
+        "maintenance": "Fundusz remontowy",
+        "other": "Pozostałe należności",
+        "overpayment": "Nadpłata (kredyt dla właściciela)"
+      }
     }
   },
   "accountType": {
@@ -926,6 +1029,8 @@
     "4080": "Koszty Administracyjne",
     "7010": "Zaliczki Eksploatacyjne",
     "7020": "Przychody Odsetkowe",
-    "7090": "Pozostałe Przychody"
+    "7030": "Rozliczenia licznków",
+    "7090": "Pozostałe Przychody",
+    "8000": "Saldo początkowe mieszkań"
   }
 }

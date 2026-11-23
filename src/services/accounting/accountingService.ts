@@ -28,6 +28,8 @@ export interface AccountFormValues {
   code: string;
   name: string;
   type: string;
+  openingBalance: string;
+  openingBalanceDate: string;
 }
 
 export function saveAccount(values: AccountFormValues, id: number | null): ValidationResult<number> {

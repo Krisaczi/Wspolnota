@@ -45,11 +45,12 @@ export function calculateAccountSummaries(asOf: string, period: DateRange): Acco
   return listAccounts().map((account) => {
     const total = allTime.get(account.id) ?? NO_TOTALS;
     const movement = inPeriod.get(account.id) ?? NO_TOTALS;
+    const opening = openingBalanceUpTo(account, asOf);
     return {
       account,
-      totalDebits: total.debit,
+      totalDebits: roundMoney(total.debit + opening),
       totalCredits: total.credit,
-      balance: balanceOf(account.type, total.debit, total.credit),
+      balance: roundMoney(balanceOf(account.type, total.debit, total.credit) + opening),
       periodDebits: movement.debit,
       periodCredits: movement.credit,
       periodTurnover: balanceOf(account.type, movement.debit, movement.credit),
@@ -57,12 +58,19 @@ export function calculateAccountSummaries(asOf: string, period: DateRange): Acco
   });
 }
 
+/** The account's opening balance once its date has passed, or zero before it / when unset. */
+export function openingBalanceUpTo(account: Account, asOf: string): number {
+  if (account.openingBalance === 0) return 0;
+  if (!account.openingBalanceDate) return 0;
+  return account.openingBalanceDate <= asOf ? account.openingBalance : 0;
+}
+
 export function calculateOpeningBalances(from: string): Map<number, number> {
   const totals = indexTotals({ from: DATE_RANGE_ALL.from, to: addDays(from, -1) });
   return new Map(
     listAccounts().map((account) => {
       const total = totals.get(account.id) ?? NO_TOTALS;
-      return [account.id, balanceOf(account.type, total.debit, total.credit)];
+      return [account.id, roundMoney(balanceOf(account.type, total.debit, total.credit) + openingBalanceUpTo(account, addDays(from, -1)))];
     }),
   );
 }

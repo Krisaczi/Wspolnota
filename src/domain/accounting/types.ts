@@ -18,6 +18,8 @@ export interface Account {
   type: AccountType;
   active: boolean;
   systemAccount: boolean;
+  openingBalance: number;
+  openingBalanceDate: string | null;
   createdAt: string;
   hasTransactions: boolean;
 }
@@ -26,6 +28,8 @@ export interface AccountInput {
   code: string;
   name: string;
   type: AccountType;
+  openingBalance: number;
+  openingBalanceDate: string | null;
 }
 
 export interface JournalLineInput {

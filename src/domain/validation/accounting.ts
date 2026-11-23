@@ -21,9 +21,9 @@ export function validateAccountInput(
   const type = ACCOUNT_TYPES.find((value) => value === raw.type);
   if (!type) errors.type = i18n.t('validation.chooseAccountType');
 
-  const openingBalance = roundMoney(Number(raw.openingBalance));
-  if (raw.openingBalance.trim() !== '' && (!Number.isFinite(openingBalance) || openingBalance < 0)) {
-    errors.openingBalance = i18n.t('validation.amountNumbers');
+  const openingBalance = roundMoney(Number(raw.openingBalance.trim().replace(',', '.')));
+  if (raw.openingBalance.trim() !== '' && !Number.isFinite(openingBalance)) {
+    errors.openingBalance = i18n.t('validation.mustBeNumber', { label: i18n.t('accounting.chart.openingBalance') });
   }
   const hasOpeningBalance = Number.isFinite(openingBalance) && openingBalance !== 0;
   let openingBalanceDate: string | null = null;

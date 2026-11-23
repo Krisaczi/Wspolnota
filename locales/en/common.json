@@ -1,1 +1,15 @@
-<content-of-locales/en/common.json>
+{
+  "app": {
+    "title": "Housing Community Manager"
+  },
+  "accounting": {
+    "chart": {
+      "noMatches": "No accounts match your search.",
+      "openingBalance": "Opening balance",
+      "openingBalanceDate": "Opening balance date",
+      "openingBalanceDateHint": "Required when an opening balance is set.",
+      "openingBalanceHint": "The account balance before the app was used. Counts from the date below.",
+      "openingBalancePlaceholder": "e.g. 1500.00"
+    }
+  }
+}

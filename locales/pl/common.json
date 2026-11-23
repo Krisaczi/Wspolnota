@@ -89,7 +89,7 @@
     "chart": {
       "accountArchived": "Konto zostało zarchiwizowane",
       "accountCreated": "Konto zostało utworzone",
-      "accountDeleted": "Konto zostało zaktualizowane",
+      "accountDeleted": "Konto zostało usunięte",
       "accountName": "Nazwa konta",
       "accountReactivated": "Konto zostało ponownie aktywowane",
       "accountUpdated": "Konto zostało zaktualizowane",
@@ -587,7 +587,7 @@
       "title": "Rodzaje liczników",
       "description": "Zdefiniuj liczniki, dla których rejestrujesz odczyty, np. wodę lub prąd.",
       "newType": "Nowy rodzaj licznika",
-      "renameType": "Zmień nazwę rodzaj licznika",
+      "renameType": "Zmień nazwę rodzaju licznika",
       "namePlaceholder": "np. Woda zimna",
       "added": "Rodzaj licznika został dodany",
       "updated": "Rodzaj licznika został zaktualizowany",
@@ -633,7 +633,7 @@
       "description": "Wybierz język aplikacji. Domyślnie ustawiony jest język polski.",
       "label": "Język aplikacji",
       "polish": "Polski",
-      "file": "Plik językowy"
+      "english": "English"
     },
     "appearance": {
       "title": "Wygląd",

@@ -266,7 +266,6 @@
       "newEntry": "Nowy przychód",
       "empty": "Brak wpisów przychodów.",
       "saved": "Przychód zapisany",
-      "updated": "Przychód zaktualizowany",
       "deleted": "Przychód usunięty",
       "deleteTitle": "Usunąć przychód?",
       "deleteMessage": "Wpis przychodu z dnia {{date}} zostanie usunięty, a jego zapisy księgowe skustomowane. Tej operacji nie można cofnąć.",

@@ -7,7 +7,7 @@ import { fail, requireText, type FieldErrors, type ValidationResult } from './co
 const CODE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9.-]*$/;
 
 export function validateAccountInput(
-  raw: { code: string; name: string; type: string },
+  raw: { code: string; name: string; type: string; openingBalance: string; openingBalanceDate: string },
   takenCodes: ReadonlySet<string>,
 ): ValidationResult<AccountInput> {
   const errors: FieldErrors = {};
@@ -21,8 +21,33 @@ export function validateAccountInput(
   const type = ACCOUNT_TYPES.find((value) => value === raw.type);
   if (!type) errors.type = i18n.t('validation.chooseAccountType');
 
+  const openingBalance = roundMoney(Number(raw.openingBalance));
+  if (raw.openingBalance.trim() !== '' && (!Number.isFinite(openingBalance) || openingBalance < 0)) {
+    errors.openingBalance = i18n.t('validation.amountNumbers');
+  }
+  const hasOpeningBalance = Number.isFinite(openingBalance) && openingBalance !== 0;
+  let openingBalanceDate: string | null = null;
+  if (raw.openingBalanceDate.trim() !== '') {
+    if (!isValidDate(raw.openingBalanceDate)) {
+      errors.openingBalanceDate = i18n.t('validation.entryDate');
+    } else {
+      openingBalanceDate = raw.openingBalanceDate;
+    }
+  } else if (hasOpeningBalance) {
+    errors.openingBalanceDate = i18n.t('validation.entryDate');
+  }
+
   if (Object.keys(errors).length > 0 || !type) return fail(errors);
-  return { ok: true, data: { code, name, type: type as AccountType } };
+  return {
+    ok: true,
+    data: {
+      code,
+      name,
+      type: type as AccountType,
+      openingBalance: hasOpeningBalance ? openingBalance : 0,
+      openingBalanceDate: hasOpeningBalance ? openingBalanceDate : null,
+    },
+  };
 }
 
 export interface AccountRule {

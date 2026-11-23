@@ -1,4 +1,5 @@
 import type { Payment, PaymentView } from '../../domain/types';
+import { listAllocationsForPayments, type PaymentAllocationInput, type PaymentAllocationRow } from './paymentAllocationsRepo';
 import { execute, queryRows, lastInsertId, type Row, type SqlParam } from '../client';
 
 export interface PaymentInput {
@@ -6,6 +7,8 @@ export interface PaymentInput {
   paymentDate: string;
   amount: number;
   description: string | null;
+  /** Explicit account allocation; when absent the automatic debt/overpayment split applies. */
+  allocations?: PaymentAllocationInput[];
 }
 
 function mapPayment(row: Row): Payment {
@@ -19,7 +22,27 @@ function mapPayment(row: Row): Payment {
 }
 
 function mapPaymentView(row: Row): PaymentView {
-  return { ...mapPayment(row), apartmentNumber: String(row.apartment_number) };
+  return { ...mapPayment(row), apartmentNumber: String(row.apartment_number), allocations: null };
+}
+
+/** Attaches allocation rows to each payment view. */
+export function withAllocations(payments: PaymentView[]): PaymentView[] {
+  if (payments.length === 0) return payments;
+  const byPayment = new Map<number, PaymentAllocationRow[]>();
+  for (const allocation of listAllocationsForPayments(payments.map((payment) => payment.id))) {
+    const rows = byPayment.get(allocation.paymentId) ?? [];
+    rows.push(allocation);
+    byPayment.set(allocation.paymentId, rows);
+  }
+  return payments.map((payment) => {
+    const rows = byPayment.get(payment.id);
+    return rows
+      ? {
+          ...payment,
+          allocations: rows.map(({ chargeCategory, amount, note }) => ({ chargeCategory, amount, note })),
+        }
+      : payment;
+  });
 }
 
 export function listPayments(filter: { apartmentId?: number; fromMonth?: string; toMonth?: string } = {}): PaymentView[] {
@@ -51,7 +74,9 @@ export function insertPayment(input: PaymentInput): number {
     input.amount,
     input.description,
   ]);
-  return lastInsertId();
+  const paymentId = lastInsertId();
+  if (input.allocations) writeAllocations(paymentId, input.allocations);
+  return paymentId;
 }
 
 export function updatePayment(id: number, input: PaymentInput): void {
@@ -62,6 +87,21 @@ export function updatePayment(id: number, input: PaymentInput): void {
     input.description,
     id,
   ]);
+  if (input.allocations) {
+    execute('DELETE FROM payment_allocations WHERE payment_id = ?', [id]);
+    writeAllocations(id, input.allocations);
+  }
+}
+
+function writeAllocations(paymentId: number, allocations: PaymentAllocationInput[]): void {
+  for (const allocation of allocations) {
+    execute('INSERT INTO payment_allocations (payment_id, charge_category, amount, note) VALUES (?, ?, ?, ?)', [
+      paymentId,
+      allocation.chargeCategory,
+      allocation.amount,
+      allocation.note,
+    ]);
+  }
 }
 
 export function deletePayment(id: number): void {

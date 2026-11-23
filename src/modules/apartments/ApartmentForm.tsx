@@ -84,9 +84,9 @@ export function ApartmentForm({ apartment, owners, takenNumbers, onSubmit, onClo
         <Field
           label={t('fields.owner')}
           htmlFor="ownerId"
-          hint={apartment ? t('apartments.form.ownerHintEdit') : t('apartments.form.ownerHintCreate')}
+          hint={apartment && apartment.ownerId !== null ? t('apartments.form.ownerHintEdit') : t('apartments.form.ownerHintCreate')}
         >
-          {apartment ? (
+          {apartment && apartment.ownerId !== null ? (
             <TextInput id="ownerId" value={apartment.ownerName ?? t('apartments.noOwner')} disabled readOnly />
           ) : (
             <SelectInput id="ownerId" value={values.ownerId} onChange={(event) => update('ownerId', event.target.value)}>

@@ -22,6 +22,8 @@ export function AccountForm({ account, onSubmit, onClose }: AccountFormProps) {
     code: account?.code ?? '',
     name: account?.name ?? '',
     type: account?.type ?? 'EXPENSE',
+    openingBalance: account && account.openingBalance !== 0 ? String(account.openingBalance) : '',
+    openingBalanceDate: account?.openingBalanceDate ?? '',
   });
   const [errors, setErrors] = useState<FieldErrors>({});
   const typeLocked = account !== null && (account.systemAccount || account.hasTransactions);
@@ -80,6 +82,35 @@ export function AccountForm({ account, onSubmit, onClose }: AccountFormProps) {
             <TextInput id="accountName" value={values.name} error={errors.name} onChange={(event) => update('name', event.target.value)} />
           </Field>
         </div>
+        <Field
+          label={t('accounting.chart.openingBalance')}
+          htmlFor="accountOpeningBalance"
+          error={errors.openingBalance}
+          hint={t('accounting.chart.openingBalanceHint')}
+        >
+          <TextInput
+            id="accountOpeningBalance"
+            inputMode="decimal"
+            value={values.openingBalance}
+            error={errors.openingBalance}
+            placeholder={t('accounting.chart.openingBalancePlaceholder')}
+            onChange={(event) => update('openingBalance', event.target.value)}
+          />
+        </Field>
+        <Field
+          label={t('accounting.chart.openingBalanceDate')}
+          htmlFor="accountOpeningBalanceDate"
+          error={errors.openingBalanceDate}
+          hint={t('accounting.chart.openingBalanceDateHint')}
+        >
+          <TextInput
+            id="accountOpeningBalanceDate"
+            type="date"
+            value={values.openingBalanceDate}
+            error={errors.openingBalanceDate}
+            onChange={(event) => update('openingBalanceDate', event.target.value)}
+          />
+        </Field>
       </form>
     </Modal>
   );

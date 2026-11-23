@@ -1,3 +1,5 @@
+import type { ChargeCategory } from './accounting/chargeCategories';
+
 export type CalculationMethod = 'per_sqm' | 'per_resident' | 'fixed' | 'percentage';
 
 export interface Owner {
@@ -89,6 +91,7 @@ export interface ChargeView extends MonthlyCharge {
 
 export interface PaymentView extends Payment {
   apartmentNumber: string;
+  allocations: { chargeCategory: ChargeCategory; amount: number; note: string | null }[] | null;
 }
 
 export interface ReadingView extends MeterReading {

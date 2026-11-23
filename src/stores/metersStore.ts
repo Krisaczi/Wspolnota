@@ -14,6 +14,7 @@ import {
   type MeterReadingInput,
 } from '../db/repositories/metersRepo';
 import type { MeterType, ReadingView } from '../domain/types';
+import { repostMeterEntryForApartment } from '../services/accounting/meterPosting';
 
 interface ReadingSeries {
   apartmentId: number;
@@ -59,12 +60,15 @@ export const useMetersStore = create<MetersState>()((set, get) => {
     saveReading: (input, id) => {
       if (id === null) insertReading(input);
       else updateReading(id, input);
+      repostMeterEntryForApartment(input.apartmentId);
       reloadReadings();
       reloadSummaries();
       set({ meterBalances: meterBalancesByApartment() });
     },
     removeReading: (id) => {
+      const apartmentId = get().readings.find((reading) => reading.id === id)?.apartmentId;
       deleteReading(id);
+      if (apartmentId !== undefined) repostMeterEntryForApartment(apartmentId);
       reloadReadings();
       reloadSummaries();
       set({ meterBalances: meterBalancesByApartment() });

@@ -7,9 +7,10 @@ import {
   type ApartmentInput,
 } from '../db/repositories/apartmentsRepo';
 import { sumChargesByApartment } from '../db/repositories/monthlyChargesRepo';
-import { sumPaymentsByApartment } from '../db/repositories/paymentsRepo';
+import { allocationSumsByApartment, receivablePaymentsByApartment } from '../db/repositories/paymentAllocationsRepo';
 import { meterBalancesByApartment } from '../db/repositories/metersRepo';
 import { calculateBalance } from '../domain/balances';
+import { removeApartmentWithPosting, saveApartmentWithPosting } from '../services/accounting/startingBalancePosting';
 import type { ApartmentView } from '../domain/types';
 
 interface ApartmentsState {
@@ -23,26 +24,33 @@ export const useApartmentsStore = create<ApartmentsState>()((set, get) => ({
   items: [],
   refresh: () => {
     const charges = sumChargesByApartment();
-    const payments = sumPaymentsByApartment();
     const meterBalances = meterBalancesByApartment();
+    // Same allocation-aware balance model as the dashboard.
+    const receivablePaid = receivablePaymentsByApartment();
+    const prepayments = allocationSumsByApartment(['overpayment']);
     set({
       items: listApartments().map((apartment) => ({
         ...apartment,
-        balance: calculateBalance(
-          (charges.get(apartment.id) ?? 0) + (meterBalances.get(apartment.id) ?? 0),
-          payments.get(apartment.id) ?? 0,
-          apartment.startingBalance,
-        ),
+        balance:
+          calculateBalance(
+            (charges.get(apartment.id) ?? 0) + (meterBalances.get(apartment.id) ?? 0),
+            receivablePaid.get(apartment.id) ?? 0,
+            apartment.startingBalance,
+          ) - (prepayments.get(apartment.id) ?? 0),
       })),
     });
   },
   save: (input, id) => {
-    if (id === null) insertApartment(input);
-    else updateApartment(id, input);
+    saveApartmentWithPosting(
+      input,
+      id,
+      () => insertApartment(input),
+      () => updateApartment(id as number, input),
+    );
     get().refresh();
   },
   remove: (id) => {
-    deleteApartment(id);
+    removeApartmentWithPosting(id, () => deleteApartment(id));
     get().refresh();
   },
 }));

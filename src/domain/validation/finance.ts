@@ -1,7 +1,9 @@
 import i18n from '../../i18n';
 import { isValidDate } from '../../lib/periods';
+import { roundMoney } from '../../lib/money';
 import type { ChargeTypeInput } from '../../db/repositories/chargeTypesRepo';
 import type { PaymentInput } from '../../db/repositories/paymentsRepo';
+import { CHARGE_CATEGORIES } from '../accounting/chargeCategories';
 import type { CalculationMethod } from '../types';
 import {
   fail,
@@ -50,4 +52,51 @@ export function validatePayment(values: PaymentFormValues): ValidationResult<Pay
     ok: true,
     data: { apartmentId: Number(values.apartmentId), paymentDate: values.paymentDate, amount, description },
   };
+}
+
+export interface PaymentAllocationFormValue {
+  chargeCategory: string;
+  amount: string;
+  note: string;
+}
+
+/** Validates allocation rows: a known category and a positive amount per row, rows summing to the payment. */
+export function validatePaymentAllocations(
+  paymentAmount: number,
+  rows: PaymentAllocationFormValue[],
+): { ok: true; data: PaymentInput['allocations'] } | { ok: false; error: string; rowErrors: Record<number, string> } {
+  const rowErrors: Record<number, string> = {};
+  let total = 0;
+  const allocations: NonNullable<PaymentInput['allocations']> = [];
+
+  rows.forEach((row, index) => {
+    if (row.chargeCategory === '' && row.amount.trim() === '') return;
+    const rowAmount = roundMoney(Number(row.amount.trim().replace(',', '.')));
+    const category = CHARGE_CATEGORIES.find((item) => item === row.chargeCategory);
+    if (!category) {
+      rowErrors[index] = i18n.t('validation.selectCategory');
+      return;
+    }
+    if (!Number.isFinite(rowAmount) || rowAmount <= 0) {
+      rowErrors[index] = i18n.t('validation.mustBePositive');
+      return;
+    }
+    total = roundMoney(total + rowAmount);
+    allocations.push({ chargeCategory: category, amount: rowAmount, note: row.note.trim() === '' ? null : row.note.trim() });
+  });
+
+  if (Object.keys(rowErrors).length > 0) {
+    return { ok: false, error: i18n.t('payments.allocation.invalidRows'), rowErrors };
+  }
+  if (allocations.length === 0) {
+    return { ok: false, error: i18n.t('payments.allocation.empty'), rowErrors };
+  }
+  if (roundMoney(total) !== roundMoney(paymentAmount)) {
+    return {
+      ok: false,
+      error: i18n.t('payments.allocation.doesNotBalance', { allocated: total, payment: roundMoney(paymentAmount) }),
+      rowErrors,
+    };
+  }
+  return { ok: true, data: allocations };
 }

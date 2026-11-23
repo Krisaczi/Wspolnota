@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { listPayments } from '../db/repositories/paymentsRepo';
+import { listPayments, withAllocations } from '../db/repositories/paymentsRepo';
 import { removePayment, savePayment } from '../services/accounting/paymentPosting';
 import type { PaymentInput } from '../db/repositories/paymentsRepo';
 import type { PaymentView } from '../domain/types';
@@ -13,7 +13,7 @@ interface PaymentsState {
 
 export const usePaymentsStore = create<PaymentsState>()((set, get) => ({
   payments: [],
-  refresh: () => set({ payments: listPayments() }),
+  refresh: () => set({ payments: withAllocations(listPayments()) }),
   save: (input, id) => {
     savePayment(input, id);
     get().refresh();

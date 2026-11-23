@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import { listApartments } from '../db/repositories/apartmentsRepo';
 import { sumChargesByApartment } from '../db/repositories/monthlyChargesRepo';
-import { listPayments, sumPaymentsByApartment } from '../db/repositories/paymentsRepo';
+import { listPayments } from '../db/repositories/paymentsRepo';
+import { allocationSumsByApartment, receivablePaymentsByApartment } from '../db/repositories/paymentAllocationsRepo';
 import { meterBalancesByApartment } from '../db/repositories/metersRepo';
 import { calculateBalance, summarizeBalances, type BalanceSummary } from '../domain/balances';
 import type { PaymentView } from '../domain/types';
@@ -41,14 +42,17 @@ export const useDashboardStore = create<DashboardState>()((set) => ({
   recentPayments: [],
   refresh: () => {
     const charges = sumChargesByApartment();
-    const payments = sumPaymentsByApartment();
     const meterBalances = meterBalancesByApartment();
+    // Owner balances from allocated postings: settled categories (operating, meter, etc.) reduce
+    // the outstanding balance; 'overpayment' allocations create owner credit.
+    const receivablePaid = receivablePaymentsByApartment();
+    const prepayments = allocationSumsByApartment(['overpayment']);
     const balances = listApartments().map((apartment) =>
       calculateBalance(
         (charges.get(apartment.id) ?? 0) + (meterBalances.get(apartment.id) ?? 0),
-        payments.get(apartment.id) ?? 0,
+        receivablePaid.get(apartment.id) ?? 0,
         apartment.startingBalance,
-      ),
+      ) - (prepayments.get(apartment.id) ?? 0),
     );
     set({
       summary: summarizeBalances(balances),

@@ -9,6 +9,10 @@ export const ACCOUNT_CODES = {
   OWNER_PREPAYMENTS: '2010',
   SUPPLIER_PAYABLES: '2020',
   MONTHLY_FEES: '7010',
+  INTEREST_INCOME: '7020',
+  STARTING_BALANCES: '8000',
+  METER_SETTLEMENTS: '7030',
+  OTHER_INCOME: '7090',
 } as const;
 
 export interface Account {
@@ -45,8 +49,44 @@ export interface JournalEntryInput {
 }
 
 export interface JournalEntrySource {
-  sourceType: 'payment';
+  sourceType: 'payment' | 'billing' | 'starting_balance' | 'meter' | 'supplier_invoice' | 'supplier_payment' | 'other_income';
   sourceId: number;
+}
+
+export interface SupplierInvoice {
+  id: number;
+  invoiceDate: string;
+  supplierName: string;
+  description: string | null;
+  amount: number;
+  expenseAccountId: number;
+  expenseAccountCode: string;
+  expenseAccountName: string;
+  paid: boolean;
+  paidDate: string | null;
+}
+
+export interface SupplierInvoiceInput {
+  invoiceDate: string;
+  supplierName: string;
+  description: string | null;
+  amount: number;
+  expenseAccountId: number;
+}
+
+export interface OtherIncomeEntry {
+  id: number;
+  incomeDate: string;
+  incomeType: 'interest' | 'other';
+  amount: number;
+  description: string | null;
+}
+
+export interface OtherIncomeInput {
+  incomeDate: string;
+  incomeType: 'interest' | 'other';
+  amount: number;
+  description: string | null;
 }
 
 export interface JournalEntry {

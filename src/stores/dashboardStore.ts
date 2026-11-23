@@ -1,0 +1,59 @@
+import { create } from 'zustand';
+import { listApartments } from '../db/repositories/apartmentsRepo';
+import { sumChargesByApartment } from '../db/repositories/monthlyChargesRepo';
+import { listPayments, sumPaymentsByApartment } from '../db/repositories/paymentsRepo';
+import { meterBalancesByApartment } from '../db/repositories/metersRepo';
+import { calculateBalance, summarizeBalances, type BalanceSummary } from '../domain/balances';
+import type { PaymentView } from '../domain/types';
+import { currentPeriod } from '../lib/periods';
+import { calculateDashboardMetrics, type DashboardMetrics } from '../services/accounting/balanceCalculationService';
+
+const RECENT_PAYMENT_LIMIT = 8;
+
+interface DashboardState {
+  summary: BalanceSummary;
+  accounting: DashboardMetrics;
+  recentPayments: PaymentView[];
+  refresh: () => void;
+}
+
+const EMPTY_SUMMARY: BalanceSummary = {
+  apartmentCount: 0,
+  receivables: 0,
+  liabilities: 0,
+  totalBalance: 0,
+  debtorCount: 0,
+};
+
+const EMPTY_ACCOUNTING: DashboardMetrics = {
+  bankBalance: 0,
+  cashBalance: 0,
+  receivables: 0,
+  payables: 0,
+  monthlyExpenses: 0,
+  monthlyIncome: 0,
+  netResult: 0,
+};
+
+export const useDashboardStore = create<DashboardState>()((set) => ({
+  summary: EMPTY_SUMMARY,
+  accounting: EMPTY_ACCOUNTING,
+  recentPayments: [],
+  refresh: () => {
+    const charges = sumChargesByApartment();
+    const payments = sumPaymentsByApartment();
+    const meterBalances = meterBalancesByApartment();
+    const balances = listApartments().map((apartment) =>
+      calculateBalance(
+        (charges.get(apartment.id) ?? 0) + (meterBalances.get(apartment.id) ?? 0),
+        payments.get(apartment.id) ?? 0,
+        apartment.startingBalance,
+      ),
+    );
+    set({
+      summary: summarizeBalances(balances),
+      accounting: calculateDashboardMetrics(currentPeriod()),
+      recentPayments: listPayments().slice(0, RECENT_PAYMENT_LIMIT),
+    });
+  },
+}));
